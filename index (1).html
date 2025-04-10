@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Résumé Builder Form</title>
+  <title>Résumé Builder</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 2rem;
       background-color: #f5f5f5;
     }
+
     form {
       background: white;
       padding: 2rem;
@@ -18,11 +19,13 @@
       max-width: 700px;
       margin: auto;
     }
+
     label {
       display: block;
       margin-top: 1rem;
       font-weight: bold;
     }
+
     input, textarea {
       width: 100%;
       padding: 0.5rem;
@@ -31,6 +34,7 @@
       border-radius: 4px;
       box-sizing: border-box;
     }
+
     button {
       margin-top: 1.5rem;
       padding: 0.75rem 1.5rem;
@@ -40,18 +44,61 @@
       border-radius: 4px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #005bb5;
+    }
+
+    #resumePreview {
+      font-family: 'Georgia', serif;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 2rem auto;
+      color: #333;
+      line-height: 1.6;
+      display: none;
+    }
+
+    #resumePreview h1, #resumePreview h2 {
+      color: #222;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+    }
+
+    #resumePreview ul {
+      padding-left: 1.2em;
+    }
+
+    #resumePreview a {
+      color: #0070f3;
+      text-decoration: none;
+    }
+
+    #downloadPDF {
+      display: none;
+      margin: 1rem auto;
+      display: block;
+      background-color: #28a745;
+    }
+
+    #downloadPDF:hover {
+      background-color: #1e7e34;
     }
   </style>
 </head>
 <body>
-  <form action="https://hook.eu2.make.com/tsrmrky24466s3qkv1vxtr5vku08xco6" method="POST">
+
+  <!-- Résumé Form -->
+  <form id="resumeForm">
     <label for="fullName">1. Full Name</label>
-    <input type="text" id="fullName" name="fullName" placeholder="John Doe" />
+    <input type="text" id="fullName" name="fullName" placeholder="John Doe" required />
 
     <label for="email">Email Address</label>
-    <input type="email" id="email" name="email" placeholder="example@email.com" />
+    <input type="email" id="email" name="email" placeholder="example@email.com" required />
 
     <label for="phone">Phone Number</label>
     <input type="text" id="phone" name="phone" placeholder="+1 123 456 7890" />
@@ -91,5 +138,65 @@
 
     <button type="submit">Submit</button>
   </form>
+
+  <!-- Résumé Preview Section -->
+  <div id="resumePreview"></div>
+  <button id="downloadPDF">Download as PDF</button>
+
+  <!-- html2pdf Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Submission Script -->
+  <script>
+    const form = document.getElementById("resumeForm");
+    const preview = document.getElementById("resumePreview");
+    const downloadBtn = document.getElementById("downloadPDF");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      preview.innerHTML = "Generating your résumé, please wait...";
+      preview.style.display = "block";
+      downloadBtn.style.display = "none";
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch("https://hook.eu2.make.com/tsrmrky24466s3qkv1vxtr5vku08xco6", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error("Something went wrong. Please try again.");
+        }
+
+        const result = await response.text(); // Gemini résumé HTML
+        preview.innerHTML = result;
+        preview.scrollIntoView({ behavior: 'smooth' });
+        downloadBtn.style.display = "block";
+
+      } catch (err) {
+        preview.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+        downloadBtn.style.display = "none";
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const element = document.getElementById("resumePreview");
+      const opt = {
+        margin: 0.5,
+        filename: 'resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    });
+  </script>
+
 </body>
 </html>
