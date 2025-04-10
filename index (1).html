@@ -92,7 +92,6 @@
 </head>
 <body>
 
-  <!-- Résumé Form -->
   <form id="resumeForm">
     <label for="fullName">1. Full Name</label>
     <input type="text" id="fullName" name="fullName" placeholder="John Doe" required />
@@ -139,15 +138,10 @@
     <button type="submit">Submit</button>
   </form>
 
-  <!-- Résumé Preview Section -->
   <div id="resumePreview"></div>
-  <button id="downloadPDF">Download as PDF</button>
+  <!-- PDF download feature removed: no external scripts allowed -->
 
-  <!-- html2pdf Script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- Submission Script -->
-  <script>
+    <script>
     const form = document.getElementById("resumeForm");
     const preview = document.getElementById("resumePreview");
     const downloadBtn = document.getElementById("downloadPDF");
@@ -174,7 +168,7 @@
           throw new Error("Something went wrong. Please try again.");
         }
 
-        const result = await response.text(); // Gemini résumé HTML
+        const result = await response.text();
         preview.innerHTML = result;
         preview.scrollIntoView({ behavior: 'smooth' });
         downloadBtn.style.display = "block";
@@ -185,18 +179,6 @@
       }
     });
 
-    downloadBtn.addEventListener("click", () => {
-      const element = document.getElementById("resumePreview");
-      const opt = {
-        margin: 0.5,
-        filename: 'resume.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    });
   </script>
-
 </body>
 </html>
